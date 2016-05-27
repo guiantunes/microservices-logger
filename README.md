@@ -16,5 +16,7 @@ For simplicity this implementation is using an embedded Neo4j database. The data
 over the [TinkerPop Api](http://tinkerpop.apache.org/) so it would be easy to adapt the application
 to support a different database if necessary.
 
-# Setup
+# Architecture
+
+![Architecture Diagram](/docs/Architecture.png)
 
