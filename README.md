@@ -73,7 +73,7 @@ curl -i -X POST \
 	
 ```
 
-Now only authenticated users can make a call to this api. Next step is to create a consumer for this API so this API can call others
+Now only authenticated users can make a call to this api. Next step is to create a consumer and a key for this API so this API can call others
 
 ```{r, engine='bash'}
 
@@ -85,6 +85,22 @@ curl -i -X POST \
 	--url http://<kong-url>:8001/consumers/<api-name>/key-auth/ -d ""
 	
 ```
+
+A key for this api is now generated and it can call other apis with that key. You should replicate that process for every microservice
+you have in your system. An example call to this API would be like that:
+
+```{r, engine='bash'}
+
+curl -i -X GET \
+	--url http://<kong-url>:8000/<api1-endpoint> \
+	--header 'Host: <api1-host>'
+	--header 'apikey: <api2-key>'
+
+```
+
+All this is useless if we don't actually collect the information being transacted so we need to setup the microservices-logger 
+application so we can start understand the connections.
+
 
 
 
