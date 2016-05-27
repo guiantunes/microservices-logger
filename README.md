@@ -61,8 +61,10 @@ curl -i -X POST \
 
 And Kong will proxy the call to the API server.
 
+#### Conventions and consumers creation
+
 It's important to understand some conventions that we are assuming to enable the graph to be built. An API named 'api1' should call
-other apis as an authenticated entity with the same 'api1' as username. In order to avoid out of context calls that could break our graph, 
+other apis as an authenticated entity with the same 'api1' as username. In order to avoid out of context calls that could break our graph,
 further configuration is required. Let's protect our newly created API with the key-auth plugin.
 
 ```{r, engine='bash'}
@@ -101,8 +103,49 @@ curl -i -X GET \
 All this is useless if we don't actually collect the information being transacted so we need to setup the microservices-logger 
 application so we can start understand the connections.
 
+#### Microservices-logger configuration
 
+As soon as we have all our microservices configured, we should add the http-log plugin to every API that
+we want to monitor. We can achieve that using the command below:
 
+```{r, engine='bash'}
 
+  curl -X POST http://<kong-url>:8001/apis/<api-name>/plugins \
+    --data "name=http-log" \
+    --data "config.http_endpoint=http://<microservices-logger-url>:8080/logKong" \
+    --data "config.method=POST" \
+    --data "config.timeout=1000" \
+    --data "config.keepalive=1000"
 
+```
+
+With that, all the calls to this API will now be tracked by the application and the information
+collected stored into the Graph.
+
+## Visualization
+
+This implementation does not provide any visualization tool yet. If you want to explore the
+graph so you can visualize dependencies, how much a particular endpoint is called and so
+on, I would recommend you to start a standalone Neo4j instance configuring it to read the data
+produced by the application.
+
+The application is pre configured to store neo4j data into the /data path. If you are using
+it outside of a container you can just configure your neo4j instance to read data from there.
+
+```
+
+# neo4j-server.properties:
+
+org.neo4j.server.database.location=/data
+
+```
+
+If you're using the containerized version, you should just start a neo4j container using volumes
+from the microservices-logger application.
+
+You'll be able to view the data like this:
+
+![Graph Visualization](/docs/graph.png)
+
+If you have any doubt or have any problem, please file an issue into the repo.
 
