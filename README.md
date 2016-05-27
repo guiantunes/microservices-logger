@@ -29,5 +29,64 @@ Inside the database, the graph respects the following schema:
 
 ![Graph Schema](/docs/graph_schema.png)
 
+## Setup
+
+This version ships with an example docker-compose.yml that specifies a kong container connected to a cassandra container and 
+a container with a containerized version of this application. It's already working but it doesn't ship with any configured API
+
+### Kong setup
+
+If you need help setting up Kong please refer to its [documentation](https://getkong.org/docs/). This document will assume that it's already running
+
+#### Add an API
+
+```{r, engine='bash'}
+
+curl -i -X POST \
+	--url http://<kong-url>:8001/apis/ \
+	--data 'name=<api-name>'
+	--data 'upstream_url=<api-url>'
+	--data 'request_host=<api-host>'
+	
+```
+This will add an api to Kong enabling you to fire calls from clients like this:
+
+```{r, engine='bash'}
+
+curl -i -X POST \
+	--url http://<kong-url>:8000/ \
+	--header 'Host: <api-host>'
+	
+```
+
+And Kong will proxy the call to the API server.
+
+It's important to understand some conventions that we are assuming to enable the graph to be built. An API named 'api1' should call
+other apis as an authenticated entity with the same 'api1' as username. In order to avoid out of context calls that could break our graph, 
+further configuration is required. Let's protect our newly created API with the key-auth plugin.
+
+```{r, engine='bash'}
+
+curl -i -X POST \
+	--url http://<kong-url>:8001/apis/<api-name/plugins \
+	--data 'name=key-auth'
+	
+```
+
+Now only authenticated users can make a call to this api. Next step is to create a consumer for this API so this API can call others
+
+```{r, engine='bash'}
+
+curl -i -X POST \
+	--url http://<kong-url>:8001/consumers \
+	--data 'username=<api-name>'
+
+curl -i -X POST \
+	--url http://<kong-url>:8001/consumers/<api-name>/key-auth/ -d ""
+	
+```
+
+
+
 
 
