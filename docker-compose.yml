@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  kong-cassandra:
+    image: mashape/cassandra
+  kong:
+    image: mashape/kong
+    links:
+      - kong-cassandra:kong-database
+    ports:
+      - 8000:8000
+      - 8001:8001
+    depends_on:
+      - kong-cassandra
+    restart: always
+  microservices-logger:
+    image: guiantunes/microservices-logger
+    ports:
+      - 8080:8080
