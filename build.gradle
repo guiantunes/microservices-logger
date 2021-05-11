@@ -35,7 +35,7 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.codehaus.groovy:groovy-all')
-	compile('org.apache.tinkerpop:neo4j-gremlin:3.2.0-incubating') {
+	compile('org.apache.tinkerpop:neo4j-gremlin:3.5.0') {
 		exclude group: 'org.slf4j'
 	}
 	compile('org.neo4j:neo4j-tinkerpop-api-impl:0.1-2.2')
